@@ -1,0 +1,41 @@
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual Environment ────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── Environment & Secrets ──────────────────────────────────
+.env
+*.pem
+private-key.pem
+
+# ── IDE ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Testing & Caching ──────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── User Data ───────────────────────────────────────────────
+backend/data/
+
+# ── Temp / Scratch ──────────────────────────────────────────
+*.log
+docx_content*.txt

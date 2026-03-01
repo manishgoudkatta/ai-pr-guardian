@@ -1,0 +1,23 @@
+name: AI PR Guardian
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+    - name: Trigger AI Review
+      run: |
+        curl -X POST '${{ secrets.REVIEW_API_URL }}/webhooks/github/action' \
+             -H 'Content-Type: application/json' \
+             -H 'X-Api-Key: ${{ secrets.REVIEW_API_KEY }}' \
+             -d '{
+               "repo": "${{ github.repository }}",
+               "pr_number": ${{ github.event.pull_request.number }},
+               "head_sha": "${{ github.event.pull_request.head.sha }}"
+             }'

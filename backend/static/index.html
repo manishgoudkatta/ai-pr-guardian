@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PR Guardian — AI-Powered Code Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --bg2: #111827;
+            --surface: #1a2035;
+            --border: #2a3555;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --blue: #3b82f6;
+            --green: #22c55e;
+            --cyan: #06b6d4;
+            --purple: #a855f7;
+            --pink: #ec4899;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated Background ─────────────────── */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bg-glow .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+        .bg-glow .orb:nth-child(1) { width: 600px; height: 600px; background: var(--accent); top: -10%; left: 20%; animation-delay: 0s; }
+        .bg-glow .orb:nth-child(2) { width: 500px; height: 500px; background: var(--cyan); top: 50%; right: -5%; animation-delay: -7s; }
+        .bg-glow .orb:nth-child(3) { width: 700px; height: 700px; background: var(--purple); bottom: -20%; left: -10%; animation-delay: -14s; }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .content { position: relative; z-index: 1; }
+
+        /* ── Nav ──────────────────────────────────── */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .logo span { font-size: 28px; }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        /* ── Hero ─────────────────────────────────── */
+        .hero {
+            text-align: center;
+            padding: 100px 40px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent2);
+            margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+        }
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 50%, var(--green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 20px;
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 640px;
+            margin: 0 auto 40px;
+        }
+        .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        /* ── Buttons ──────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--blue) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent2);
+        }
+        .btn svg { width: 20px; height: 20px; }
+
+        /* ── Features Grid ────────────────────────── */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1100px;
+            margin: 80px auto;
+            padding: 0 40px;
+        }
+        .feature-card {
+            background: rgba(26, 32, 53, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .feature-card:nth-child(1) .feature-icon { background: rgba(99,102,241,0.15); }
+        .feature-card:nth-child(2) .feature-icon { background: rgba(34,197,94,0.15); }
+        .feature-card:nth-child(3) .feature-icon { background: rgba(236,72,153,0.15); }
+        .feature-card:nth-child(4) .feature-icon { background: rgba(6,182,212,0.15); }
+        .feature-card:nth-child(5) .feature-icon { background: rgba(168,85,247,0.15); }
+        .feature-card:nth-child(6) .feature-icon { background: rgba(249,115,22,0.15); }
+        .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+        /* ── How It Works ─────────────────────────── */
+        .how-section {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 40px;
+            text-align: center;
+        }
+        .how-section h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 48px;
+        }
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+        .step-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0 auto 16px;
+        }
+        .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+        /* ── CTA ──────────────────────────────────── */
+        .cta {
+            text-align: center;
+            padding: 80px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .cta h2 {
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .cta p {
+            font-size: 18px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        /* ── Footer ───────────────────────────────── */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1px solid rgba(42,53,85,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .features { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            nav { padding: 16px 20px; }
+            .hero { padding: 60px 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+
+    <div class="content">
+        <!-- Nav -->
+        <nav>
+            <div class="logo">
+                <span>🛡️</span>
+                AI PR Guardian
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how">How It Works</a>
+                <a href="/auth/login" class="btn btn-primary" style="padding: 10px 20px; font-size: 14px;">
+                    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                    Sign in with GitHub
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">✨ AI-Powered Code Review</div>
+            <h1>
+                Review every PR with<br>
+                <span class="gradient">AI intelligence</span>
+            </h1>
+            <p>
+                Connect your GitHub repos and get instant, in-depth code reviews on every pull request.
+                Catches bugs, security issues, and style problems — automatically.
+            </p>
+            <div class="hero-actions">
+                <a href="/auth/login" class="btn btn-primary">
+                    <svg viewBox="0 0 16 16" fill="currentColor" style="width:20px;height:20px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                    Get Started — Free
+                </a>
+                <a href="/docs" class="btn btn-secondary">
+                    📚 API Documentation
+                </a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features" id="features">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI-Powered Analysis</h3>
+                <p>Uses Llama 3 / GPT-4o to perform deep code review covering bugs, security, performance, and best practices.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Static Analysis</h3>
+                <p>Runs flake8 and bandit on Python code to catch style issues and security vulnerabilities automatically.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Inline PR Comments</h3>
+                <p>Posts review comments directly on your pull request with severity levels and actionable suggestions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Merge Safety Score</h3>
+                <p>Every PR gets a 0–100 safety score with per-file verdicts — know at a glance if it's safe to merge.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>One-Click Setup</h3>
+                <p>Sign in with GitHub, select your repos, and webhooks are registered automatically. No manual config needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Custom Rules</h3>
+                <p>Add a RULES.md to your repo with project-specific conventions — the AI enforces them in every review.</p>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="how-section" id="how">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Sign in with GitHub</h3>
+                    <p>Authorize AI PR Guardian to access your repos. We only request the permissions we need.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>Enable Your Repos</h3>
+                    <p>Select which repos you want AI to review. Webhooks are registered automatically — zero configuration.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Open a Pull Request</h3>
+                    <p>The AI instantly reviews your PR, posts inline comments, per-file verdicts, and a merge safety score.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta">
+            <h2>Ready to level up your code reviews?</h2>
+            <p>Join developers who use AI PR Guardian to catch bugs before they ship.</p>
+            <a href="/auth/login" class="btn btn-primary">
+                <svg viewBox="0 0 16 16" fill="currentColor" style="width:20px;height:20px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                Start Free — Sign in with GitHub
+            </a>
+        </div>
+
+        <footer>
+            Built with FastAPI, Groq AI & ❤️ · AI PR Guardian © 2025
+        </footer>
+    </div>
+</body>
+</html>
