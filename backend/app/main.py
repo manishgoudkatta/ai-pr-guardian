@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 # ── FastAPI application ─────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="AI Pull Request Guardian",
-    description="Automated AI-powered code review for GitHub pull requests",
+    title="CodeReview by Manish",
+    description="Automated AI-powered code review platform for GitHub pull requests",
     version="2.0.0",
 )
 
@@ -122,7 +122,7 @@ def get_reviews(request: Request):
 
 @app.on_event("startup")
 async def startup():
-    logger.info("🛡️  AI PR Guardian v2.0 is running")
+    logger.info("⚡ CodeVigil by Manish v2.0 is running")
     logger.info("📊 Dashboard:  http://localhost:8000")
     logger.info("📚 API Docs:   http://localhost:8000/docs")
     logger.info("🔗 Webhook:    POST /webhooks/github")
