@@ -53,6 +53,7 @@
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent), var(--purple));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .header-badge { background: var(--accent-glow); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid rgba(88,166,255,0.2); }
@@ -88,7 +89,7 @@
         .metric-card:nth-child(3)::before { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
         .metric-card:nth-child(4)::before { background: linear-gradient(90deg, var(--purple), var(--accent)); }
         .metric-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .metric-value { font-size: 36px; font-weight: 800; }
+        .metric-value { font-size: 36px; font-weight: 800; color: #ffffff; }
         .metric-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
 
         /* ── Repo Cards ────────────────────── */
@@ -128,7 +129,7 @@
         .score-medium { background: var(--yellow-bg); color: var(--yellow); }
         .score-low { background: var(--orange-bg); color: var(--orange); }
         .score-critical { background: var(--red-bg); color: var(--red); }
-        .review-title { font-size: 15px; font-weight: 600; }
+        .review-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
         .review-meta { display: flex; gap: 14px; margin-top: 4px; }
         .review-meta span { font-size: 12px; color: var(--text-secondary); }
         .badge { padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; }
