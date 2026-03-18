@@ -76,7 +76,7 @@ ai-pr-guardian/
 │   ├── .env.example
 │   └── .env                     # Your local config (git-ignored)
 ├── dashboard/
-│   └── app.py                   # Streamlit review dashboard
+│   └── app.py                  
 ├── .github/workflows/
 │   └── pr-review.yml            # GitHub Actions workflow
 ├── RULES.md                     # Example project rules template
